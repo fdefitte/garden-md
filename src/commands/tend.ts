@@ -340,6 +340,8 @@ ${stats}
 
 function sanitizeFilename(name: string): string {
   return name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // strip diacritics (é→e, è→e, ñ→n)
     .replace(/[^a-zA-Z0-9\s-]/g, '')
     .trim()
     .replace(/\s+/g, '-')
