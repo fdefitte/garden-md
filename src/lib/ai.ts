@@ -15,6 +15,15 @@ export interface AIResult {
 // Global token counter for the current session
 export const tokenUsage = { input: 0, output: 0 };
 
+// Fast/cheap models for simple tasks like entity extraction
+export const FAST_MODELS: Record<string, string> = {
+  anthropic: 'claude-haiku-4-20250414',
+  openai: 'gpt-4o-mini',
+  gemini: 'gemini-2.0-flash',
+  ollama: '', // keep user's choice
+  'claude-cli': '',
+};
+
 function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
   return Promise.race([
     promise,
@@ -24,8 +33,9 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
   ]);
 }
 
-export async function callAI(config: GardenConfig, systemPrompt: string, userPrompt: string): Promise<string> {
-  const { provider, apiKey, model } = config.ai;
+export async function callAI(config: GardenConfig, systemPrompt: string, userPrompt: string, modelOverride?: string): Promise<string> {
+  const { provider, apiKey } = config.ai;
+  const model = modelOverride || config.ai.model;
 
   if (provider === 'anthropic') {
     const client = new Anthropic({ apiKey });
@@ -107,7 +117,7 @@ export async function callAI(config: GardenConfig, systemPrompt: string, userPro
   throw new Error(`Unknown AI provider: ${provider}`);
 }
 
-export async function callAIJson<T>(config: GardenConfig, systemPrompt: string, userPrompt: string, retries = 3): Promise<T> {
+export async function callAIJson<T>(config: GardenConfig, systemPrompt: string, userPrompt: string, retries = 3, modelOverride?: string): Promise<T> {
   const jsonSystemPrompt = `${systemPrompt}\n\nYou MUST respond with valid JSON only. No markdown, no code blocks, no explanation. Just the JSON object.`;
   
   let lastError: Error | null = null;
@@ -118,7 +128,7 @@ export async function callAIJson<T>(config: GardenConfig, systemPrompt: string, 
         await new Promise(r => setTimeout(r, 2000 * Math.pow(2, attempt - 1)));
       }
       
-      const response = await callAI(config, jsonSystemPrompt, userPrompt);
+      const response = await callAI(config, jsonSystemPrompt, userPrompt, modelOverride);
       
       // Try to extract JSON from response (in case LLM wraps it)
       let jsonStr = response.trim();

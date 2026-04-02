@@ -4,7 +4,7 @@ import path from 'path';
 import { execSync } from 'child_process';
 import cliProgress from 'cli-progress';
 import { loadConfig, resolveWikiPath, resolveWildlandPath, resolveHtmlPath } from '../lib/config.js';
-import { callAIJson, tokenUsage } from '../lib/ai.js';
+import { callAIJson, tokenUsage, FAST_MODELS } from '../lib/ai.js';
 import { generateHtml } from '../lib/html.js';
 
 interface TendEntity {
@@ -212,8 +212,8 @@ export async function tendCommand(): Promise<void> {
   
   if (tokenUsage.input > 0 || tokenUsage.output > 0) {
     const totalTokens = tokenUsage.input + tokenUsage.output;
-    // Rough cost estimate (Sonnet: $3/M input, $15/M output)
-    const costEstimate = (tokenUsage.input * 3 + tokenUsage.output * 15) / 1_000_000;
+    // Rough cost estimate (Haiku: $0.80/M input, $4/M output)
+    const costEstimate = (tokenUsage.input * 0.8 + tokenUsage.output * 4) / 1_000_000;
     console.log(chalk.dim(`  Tokens: ${tokenUsage.input.toLocaleString()} in + ${tokenUsage.output.toLocaleString()} out = ${totalTokens.toLocaleString()} total (~$${costEstimate.toFixed(2)})`));
   }
   
@@ -272,7 +272,8 @@ Rules:
 - Entity names must match exactly how they appear in the text
 - Use existing page paths when they exist`;
 
-  return await callAIJson<TendResult>(config, systemPrompt, content);
+  const fastModel = FAST_MODELS[config.ai.provider] || undefined;
+  return await callAIJson<TendResult>(config, systemPrompt, content, 3, fastModel);
 }
 
 async function processLongItem(
