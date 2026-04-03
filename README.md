@@ -173,6 +173,63 @@ During `garden init`, providers are auto-detected based on what's installed on y
 - Connector API keys are encrypted only by filesystem permissions
 - Prompt injection mitigation is defense-in-depth, not foolproof
 
+## Why This Makes AI Agents Smarter
+
+garden-md isn't just for humans browsing a wiki. The real power is that **your AI agents get company memory**.
+
+### The Problem
+
+AI agents are smart but amnesiac. Every session starts blank. Ask Claude, ChatGPT, or any coding agent "who did we meet with last week?" — nothing. "What did we decide about pricing?" — nothing. They have zero institutional knowledge about your company, your people, your decisions.
+
+Meanwhile, all that context sits locked inside meeting recordings nobody re-watches.
+
+### The Fix
+
+garden-md turns those recordings into structured markdown that agents can read natively:
+
+```
+~/wiki/
+├── People/sarah-chen.md      ← agent knows who Sarah is
+├── Companies/acme-corp.md    ← agent knows the Acme deal context
+├── Meetings/standup-04-01.md ← agent knows what was discussed
+└── Products/agentphone.md    ← agent knows what you're building
+```
+
+**Markdown is the universal agent context format.** Every major AI tool — Claude Code, Cursor, Windsurf, GPT — reads `.md` files natively. No plugins, no integrations, no API calls. Just files on disk.
+
+### How Agents Use It
+
+**Claude Code / CLAUDE.md** — `garden init` automatically wires your wiki into `~/.claude/CLAUDE.md`. Claude Code sees your entire company knowledge base in every session. Ask it "what's the status of the Acme deal?" and it has the answer from your last three meetings with them.
+
+**Cursor / Windsurf** — Add your wiki folder to the project. The AI assistant instantly has context about your team, decisions, and product history when writing code.
+
+**Any agent with file access** — The wiki is just folders of markdown. Point any agent at `~/wiki/` and it gains your company's institutional memory.
+
+### What This Looks Like in Practice
+
+Without garden-md:
+```
+You: "Draft an email to Sarah about the Stripe migration"
+Agent: "Who is Sarah? What Stripe migration?"
+```
+
+With garden-md:
+```
+You: "Draft an email to Sarah about the Stripe migration"
+Agent: *reads People/sarah-chen.md → knows she's on the product team*
+       *reads Meetings/standup-04-01.md → knows Stripe migration is 70% done, blocked on webhook verification*
+       *reads People/james-rodriguez.md → knows James is already helping*
+       "Here's the email, referencing the webhook blocker James is fixing..."
+```
+
+The agent doesn't hallucinate names, doesn't guess at context, doesn't ask you to explain your own company. It just knows — because garden-md gave it memory.
+
+### The Compound Effect
+
+Every `garden sync && garden tend` makes your agents smarter. New meetings add new people, new decisions, new context. Entity pages accumulate backlinks across meetings — your agent can trace "every meeting where Acme Corp was discussed" or "every decision made in Q2" without you curating anything.
+
+It's not RAG. It's not a vector database. It's just well-organized markdown files that agents already know how to read.
+
 ## FAQ
 
 **Q: Does it modify my transcripts?**
