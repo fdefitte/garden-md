@@ -14,7 +14,7 @@ Five commands. Under 2 minutes. Your scattered transcripts become a structured, 
 
 Fork it. Improve it. Make it yours.
 
-*Built by the [Basalt](https://basalt.company) team. 
+*Built by the [Basalt](https://getbasalt.ai) team. 
 
 ## Install
 
@@ -35,6 +35,8 @@ garden open              # browse your wiki at localhost:4242
 ```
 
 ## Demo
+
+Connect your data sources. When you run 'garden sync' it will send all new transcripts to the "wildland". Run 'garden tend' to organise the data and add it to your wiki. That's it. Keep that garden clean and organized !
 
 ```
 $ garden connect
