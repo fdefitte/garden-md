@@ -65,7 +65,15 @@ export function loadConfig(): GardenConfig {
     throw new Error('Garden not initialized. Run `garden init` first.');
   }
   const raw = fs.readFileSync(CONFIG_PATH, 'utf-8');
-  return parseYaml(raw) as GardenConfig;
+  const parsed = parseYaml(raw) as any;
+
+  // Basic schema validation
+  if (!parsed || typeof parsed !== 'object') throw new Error('Invalid config.yaml: not an object');
+  if (!parsed.ai?.provider) throw new Error('Invalid config.yaml: missing ai.provider');
+  if (!parsed.wiki?.path) throw new Error('Invalid config.yaml: missing wiki.path');
+  if (!Array.isArray(parsed.folders)) throw new Error('Invalid config.yaml: missing folders array');
+
+  return parsed as GardenConfig;
 }
 
 export function saveConfig(config: GardenConfig): void {

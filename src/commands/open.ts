@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import express from 'express';
-import { execFileSync, exec } from 'child_process';
+import { execFileSync, execFile } from 'child_process';
 import net from 'net';
 import { loadConfig, resolveHtmlPath, resolveWikiPath } from '../lib/config.js';
 import { generateHtml } from '../lib/html.js';
@@ -62,16 +62,14 @@ export async function openCommand(): Promise<void> {
     console.log(chalk.dim('  ⟳ Sync & Tend triggered from browser…'));
 
     try {
-      // Run sync and tend sequentially, collect output
-      const runCmd = (cmd: string): Promise<string> => new Promise((resolve) => {
-        exec(cmd, { timeout: 300000 }, (_err, stdout, stderr) => {
+      const gardenBin = process.argv[1];
+      const runCmdSafe = (args: string[]): Promise<string> => new Promise((resolve) => {
+        execFile('node', [gardenBin, ...args], { timeout: 300000 }, (_err, stdout, stderr) => {
           resolve((stdout || '') + (stderr || ''));
         });
       });
-
-      const gardenBin = process.argv[1];
-      const syncOut = await runCmd(`node "${gardenBin}" sync 2>&1`);
-      const tendOut = await runCmd(`node "${gardenBin}" tend 2>&1`);
+      const syncOut = await runCmdSafe(['sync']);
+      const tendOut = await runCmdSafe(['tend']);
       const output = (syncOut + '\n' + tendOut).trim();
 
       console.log(chalk.dim(output.split('\n').map((l: string) => '    ' + l).join('\n')));

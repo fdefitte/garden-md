@@ -25,6 +25,20 @@ interface TendResult {
 export async function tendCommand(): Promise<void> {
   const config = loadConfig();
   const wildlandPath = resolveWildlandPath(config);
+
+  // Lockfile to prevent concurrent runs
+  const lockPath = path.join(wildlandPath, '.garden-tend.lock');
+  if (fs.existsSync(lockPath)) {
+    const lockAge = Date.now() - fs.statSync(lockPath).mtime.getTime();
+    if (lockAge < 600000) { // 10 minutes — assume stale after that
+      console.log(chalk.yellow('\nAnother garden tend is already running. Wait or remove ' + lockPath + '\n'));
+      return;
+    }
+  }
+  fs.writeFileSync(lockPath, String(process.pid), 'utf-8');
+  const removeLock = () => { try { fs.unlinkSync(lockPath); } catch {} };
+  process.on('exit', removeLock);
+  process.on('SIGINT', () => { removeLock(); process.exit(1); });
   const wikiPath = resolveWikiPath(config);
   const htmlPath = resolveHtmlPath(config);
 
@@ -260,6 +274,8 @@ export async function tendCommand(): Promise<void> {
   }
   
   console.log(`\n  Run ${chalk.bold('garden open')} to browse your wiki.\n`);
+
+  removeLock();
 }
 
 async function processItem(
@@ -532,7 +548,7 @@ ${stats}
 }
 
 function sanitizeFilename(name: string): string {
-  return name
+  let sanitized = name
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '') // strip diacritics (é→e, è→e, ñ→n)
     .replace(/:/g, '-')             // colons to hyphens (1:1 → 1-1, not 11)
@@ -540,6 +556,12 @@ function sanitizeFilename(name: string): string {
     .trim()
     .replace(/\s+/g, '-')
     .replace(/-{2,}/g, '-')         // collapse multiple hyphens
-    .toLowerCase()
-    + '.md';
+    .toLowerCase();
+
+  // Guard against path traversal — strip any remaining path separators and use basename
+  sanitized = sanitized.replace(/[\/\\]/g, '-');
+  sanitized = path.basename(sanitized); // extra safety: strip directory components
+  if (!sanitized || sanitized === '.' || sanitized === '..') sanitized = 'unnamed';
+
+  return sanitized + '.md';
 }
