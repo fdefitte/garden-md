@@ -18,8 +18,8 @@ export const tokenUsage = { input: 0, output: 0 };
 // Fast/cheap models for simple tasks like entity extraction
 export const FAST_MODELS: Record<string, string> = {
   anthropic: 'claude-haiku-4-5-20251001',
-  openai: 'gpt-4o-mini',
-  gemini: 'gemini-2.0-flash',
+  openai: 'gpt-4.1-nano',
+  gemini: 'gemini-2.5-flash',
   ollama: '', // keep user's choice
   'claude-cli': '',
 };

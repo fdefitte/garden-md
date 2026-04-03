@@ -62,8 +62,8 @@ function isClaudeInstalled(): boolean {
 export function defaultModelForProvider(provider: string): string {
   switch (provider) {
     case 'anthropic': return 'claude-sonnet-4-20250514';
-    case 'openai': return 'gpt-4o';
-    case 'gemini': return 'gemini-2.0-flash';
+    case 'openai': return 'gpt-4.1-mini';
+    case 'gemini': return 'gemini-2.5-flash';
     case 'ollama': return 'llama3';
     case 'claude-cli': return 'default';
     default: return 'claude-sonnet-4-20250514';
