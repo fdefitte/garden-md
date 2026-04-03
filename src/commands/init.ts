@@ -283,5 +283,45 @@ The wiki is auto-updated by \`garden sync && garden tend\`. You don't maintain i
   console.log(`  Wildland: ${chalk.cyan(config.wiki.wildland)}`);
   console.log(`  Provider: ${chalk.cyan(config.ai.provider)}`);
   console.log(`  Git:      ${chalk.cyan(enableGit ? 'enabled' : 'disabled')}`);
-  console.log(`\n  Next: run ${chalk.bold('garden connect')} to add a data source.\n`);
+
+  // Continue to connect → sync → tend → open
+  const continueSetup = await confirm({
+    message: 'Connect a data source now and start building your wiki?',
+    default: true,
+  });
+
+  if (continueSetup) {
+    // Import and run connect
+    const { connectCommand } = await import('./connect.js');
+    await connectCommand({});
+
+    // Reload config (connect may have added connectors)
+    const updatedConfig = (await import('../lib/config.js')).loadConfig();
+
+    if (updatedConfig.connectors.length > 0) {
+      console.log(chalk.green('\n📡 Syncing transcripts...\n'));
+      const { syncCommand } = await import('./sync.js');
+      await syncCommand({});
+
+      // Check if wildland has items
+      const wlPath = (await import('../lib/config.js')).resolveWildlandPath(updatedConfig);
+      const wlFiles = fs.readdirSync(wlPath).filter(f => f.endsWith('.md'));
+
+      if (wlFiles.length > 0) {
+        console.log(chalk.green(`\n🌿 Processing ${wlFiles.length} transcripts...\n`));
+        const { tendCommand } = await import('./tend.js');
+        await tendCommand();
+
+        console.log(chalk.green('\n🌐 Opening your wiki...\n'));
+        const { openCommand } = await import('./open.js');
+        await openCommand();
+      } else {
+        console.log(chalk.dim('\n  No new transcripts to process. Run `garden open` to browse your wiki.\n'));
+      }
+    } else {
+      console.log(chalk.dim('\n  No connectors added. Run `garden connect` when ready.\n'));
+    }
+  } else {
+    console.log(`\n  Next: run ${chalk.bold('garden connect')} to add a data source.\n`);
+  }
 }

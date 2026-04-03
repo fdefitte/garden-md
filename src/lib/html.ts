@@ -598,7 +598,11 @@ function buildSidebar(
     <input type="text" id="search" placeholder="Search…">
     <a href="/index.html" class="nav-link" data-folder="">Wiki <span class="nav-count">${totalPages}</span></a>
     <div class="nav-section">${navLinks}</div>
-    <div class="sidebar-footer">garden-md</div>
+    <div class="sidebar-footer">
+      <a href="https://github.com/Garden-md/garden-md" style="color:var(--text-tertiary);text-decoration:none;font-size:11px">GitHub</a>
+      <span style="margin:0 4px;color:var(--border)">·</span>
+      <a href="https://github.com/Garden-md/garden-md#readme" style="color:var(--text-tertiary);text-decoration:none;font-size:11px">Docs</a>
+    </div>
   `;
 }
 
