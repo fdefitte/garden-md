@@ -207,8 +207,11 @@ export async function tendCommand(): Promise<void> {
       if (!meta[key]) {
         const content = fs.readFileSync(path.join(folderPath, file), 'utf-8');
         const h1Match = content.match(/^#\s+(.+)$/m);
+        let title = h1Match ? h1Match[1].trim() : file.replace('.md', '').replace(/-/g, ' ');
+        // Strip markdown links: [text](url) → text
+        title = title.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
         meta[key] = {
-          title: h1Match ? h1Match[1].trim() : file.replace('.md', '').replace(/-/g, ' '),
+          title,
           type: folder.name.toLowerCase(),
         };
       }
