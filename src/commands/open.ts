@@ -23,10 +23,26 @@ export async function openCommand(): Promise<void> {
     return;
   }
 
-  // Always regenerate HTML from wiki to ensure it's fresh
-  console.log(chalk.dim('  Generating HTML...'));
+  // Only regenerate HTML if it's missing or stale (wiki changed since last gen)
+  const htmlIndexPath = `${htmlPath}/index.html`;
+  const needsRegen = !fs.existsSync(htmlIndexPath) || (() => {
+    const htmlTime = fs.statSync(htmlIndexPath).mtime.getTime();
+    // Check if any wiki md file is newer than the HTML
+    for (const f of config.folders) {
+      const fp = `${wikiPath}/${f.name}`;
+      if (!fs.existsSync(fp)) continue;
+      for (const file of fs.readdirSync(fp).filter((x: string) => x.endsWith('.md'))) {
+        if (fs.statSync(`${fp}/${file}`).mtime.getTime() > htmlTime) return true;
+      }
+    }
+    return false;
+  })();
+
   fs.mkdirSync(htmlPath, { recursive: true });
-  await generateHtml(wikiPath, htmlPath, config.folders);
+  if (needsRegen) {
+    console.log(chalk.dim('  Generating HTML...'));
+    await generateHtml(wikiPath, htmlPath, config.folders);
+  }
 
   let port = 4242;
   while (await isPortTaken(port)) {
