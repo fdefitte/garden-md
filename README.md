@@ -140,25 +140,32 @@ Built-in connectors use pre-built, tested scripts — no AI code generation. For
 
 ```
 ~/.garden/
-├── config.yaml          # AI provider, paths, schedule
-├── connectors/          # Sync scripts + API keys
-│   ├── grain.mjs
-│   └── grain.key
-├── wildland/            # Raw synced transcripts
-│   ├── team-sync-2026-04-01.md
-│   └── ...
-├── wiki/                # Linked wiki pages
+├── config.yaml              # AI provider, paths, schedule
+└── connectors/              # Sync scripts + API keys
+    ├── grain.mjs
+    └── grain.key
+
+~/wiki/                      # Your wiki (configurable path)
+├── Index.md                 # Root index with recent activity
+├── .garden-meta.json        # Display name metadata sidecar
+├── Meetings/
+│   ├── Index.md             # Auto-generated folder index with descriptions
+│   ├── weekly-standup.md    # Linked transcript with entity references
+│   └── investor-call.md
+├── People/
 │   ├── Index.md
-│   ├── Meetings/
-│   ├── People/
-│   ├── Companies/
-│   ├── Products/
-│   ├── Sessions/
-│   └── Decisions/
-└── _html/               # Generated HTML wiki
-    ├── index.html
-    └── ...
+│   ├── sarah-chen.md        # Enriched stub: role, context, backlinks
+│   └── michael-seibel.md
+└── Companies/
+    ├── Index.md
+    ├── acme-corp.md          # Enriched stub: relationship, relevance
+    └── bland-ai.md
+
+~/wiki-wildland/             # Raw synced transcripts (staging area)
+~/wiki-html/                 # Generated HTML wiki (served by garden open)
 ```
+
+**Default folders:** Meetings, People, Companies. Add more with `garden add Products`, `garden add Decisions`, etc.
 
 ## AI Providers
 
