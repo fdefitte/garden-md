@@ -12,6 +12,7 @@ import { disconnectCommand } from './commands/disconnect.js';
 import { uninstallCommand } from './commands/uninstall.js';
 import { addCommand, removeCommand, renameCommand, listCommand } from './commands/folders.js';
 import { auditCommand } from './commands/audit.js';
+import { watchCommand } from './commands/watch.js';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -93,6 +94,13 @@ program
   .command('audit')
   .description('Check wiki health — broken links, orphans, stale pages')
   .action(auditCommand);
+
+program
+  .command('watch')
+  .description('Auto-sync and tend on a loop — set it and forget it')
+  .option('--interval <minutes>', 'Minutes between cycles (default: 30)', '30')
+  .option('--once', 'Run one sync+tend cycle and exit')
+  .action(watchCommand);
 
 program.parseAsync().catch((err: Error) => {
   if (err.message?.includes('not initialized')) {
