@@ -34,9 +34,9 @@ function request(endpoint, apiKey) {
 }
 
 export async function test({ apiKey }) {
-  const result = await request('/v1/documents?limit=1', apiKey);
-  const docs = result.documents || result.data || [];
-  return { ok: true, message: docs.length > 0 ? 'Connected — documents found' : 'Connected — no documents yet' };
+  const result = await request('/v1/notes?page_size=1', apiKey);
+  const notes = result.notes || [];
+  return { ok: true, message: notes.length > 0 ? 'Connected — notes found' : 'Connected — no notes yet' };
 }
 
 export default async function sync({ apiKey, wildlandPath, initialDays = 15 }) {
